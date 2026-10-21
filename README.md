@@ -1,1 +1,0 @@
-# mamo-math
