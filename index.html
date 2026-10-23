@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mamo's Math World</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Fredoka:wght@400;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background-color: #fff7ed;
+      color: #172554;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .font-title {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .font-chalk {
+      font-family: 'Permanent Marker', cursive;
+    }
+
+    /* Custom Chalkboard Frame Texture & Depth */
+    .chalkboard-container {
+      background: #ffffff;
+      border: 10px solid #7c3aed;
+      box-shadow: inset 0 0 0 2px #e0e7ff, 0 10px 25px rgba(79,70,229,0.18);
+      position: relative;
+    }
+
+    .chalkboard-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(224,231,255,0.18));
+      pointer-events: none;
+    }
+
+    /* Keypad Button Styling */
+    .num-btn {
+      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      color: #1e3a8a; border: 1px solid #bfdbfe;
+      box-shadow: 0 4px 0 #93c5fd, inset 0 1px 0 rgba(255,255,255,0.9);
+      transition: all 0.08s ease;
+    }
+    .num-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #93c5fd, inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    /* Timer Countdown Bar Transition */
+    #timer-bar {
+      transition: width 0.1s linear, background-color 0.3s ease;
+    }
+
+    /* Custom Scrollbar for High Scores / Stats */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3b82f6;
+      border-radius: 4px;
+    }
+
+    /* Chalkboard Star Pop Animation */
+    @keyframes starPop {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .chalk-star {
+      animation: starPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* Arm movements for Teacher Mamo */
+    .arm-right {
+      transform-origin: 320px 240px;
+      transition: transform 0.4s ease-in-out;
+    }
+    .arm-left {
+      transform-origin: 180px 240px;
+      transition: transform 0.4s ease-in-out;
+    }
+
+    .arm-right-write {
+      transform: rotate(-22deg) translate(15px, -20px);
+    }
+    .arm-left-erase {
+      transform: rotate(25deg) translate(-10px, -25px);
+    }
+
+    /* Brighter, modern classroom look */
+    body { background: linear-gradient(135deg,#fff7ed 0%,#fdf2f8 45%,#eff6ff 100%); color:#172554; }
+    header, footer { background: rgba(255,255,255,.94) !important; border-color:#e9d5ff !important; color:#64748b !important; }
+    section.bg-slate-900, .bg-slate-900 { background-color:rgba(255,255,255,.94) !important; border-color:#e9d5ff !important; color:#172554; }
+    .bg-slate-950 { background-color:#f8fafc !important; border-color:#dbeafe !important; }
+    .text-white { color:#172554 !important; }
+    .text-slate-100,.text-slate-200,.text-slate-300 { color:#334155 !important; }
+    .text-slate-400,.text-slate-500 { color:#64748b !important; }
+    .border-slate-800,.border-slate-700 { border-color:#e2e8f0 !important; }
+    .bg-slate-800 { background-color:#eef2ff !important; }
+    .teacher-stage { background:linear-gradient(135deg,#fce7f3,#dbeafe,#dcfce7) !important; border-color:#c4b5fd !important; }
+    .tally-mark { font-family:'Chakra Petch',sans-serif; color:#2563eb; font-weight:700; font-size:2rem; line-height:1; }
+    .tally-group { display:flex; align-items:center; gap:4px; padding:8px 10px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; min-height:54px; }
+    .tally-slash { display:inline-block; width:4px; height:30px; background:#2563eb; border-radius:3px; transform:rotate(18deg); margin-left:-3px; }
+  
+    /* High-contrast black & pink theme */
+    body { background: radial-gradient(ellipse at top, #3b1028 0%, #140812 48%, #050505 100%) !important; color:#fff !important; }
+    section:not(#game-screen), header, footer { --tw-bg-opacity:1; }
+    .bg-slate-900, .bg-slate-900\/90, .bg-slate-950, .bg-slate-800 { background-color:#130b11 !important; }
+    .border-slate-800, .border-slate-700 { border-color:#71304f !important; }
+    .text-slate-400, .text-slate-500 { color:#f2c8dc !important; }
+    .text-slate-300, .text-slate-200 { color:#fff0f7 !important; }
+    .text-amber-400, .text-emerald-400, .text-indigo-700 { color:#ff78b7 !important; }
+    .bg-gradient-to-r { background-image:linear-gradient(90deg,#e11d74,#ff75b7) !important; }
+    .tally-group { background:#fff !important; border-color:#f472b6 !important; }
+    .tally-mark { color:#db2777 !important; }
+    .tally-slash { background:#db2777 !important; }
+    button { font-weight:800 !important; }
+    input, button { font-size:1rem; }
+    p, label, .text-xs, .text-sm { line-height:1.55; }
+
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 shadow-md">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('main-menu')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center shadow-lg font-title font-bold text-xl text-white">
+          M
+        </div>
+        <div>
+          <h1 class="font-title text-xl md:text-2xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+            MAMO'S MATH WORLD
+          </h1>
+        </div>
+      </div>
+
+      <!-- Quick Nav Buttons -->
+      <nav class="flex items-center space-x-2 md:space-x-4">
+        <button onclick="showScreen('main-menu')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition flex items-center gap-2 border border-slate-700">
+          <i class="fa-solid fa-house text-blue-400"></i> <span class="hidden sm:inline">Menu</span>
+        </button>
+        <button onclick="showScreen('leaderboard-screen')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition flex items-center gap-2 border border-slate-700">
+          <i class="fa-solid fa-trophy text-amber-400"></i> <span class="hidden sm:inline">Leaderboard</span>
+        </button>
+        <button onclick="showScreen('stats-screen')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition flex items-center gap-2 border border-slate-700">
+          <i class="fa-solid fa-chart-pie text-emerald-400"></i> <span class="hidden sm:inline">Stats</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER WITH SCREENS -->
+  <main class="flex-grow flex items-center justify-center p-3 sm:p-6 max-w-6xl w-full mx-auto">
+
+    <!-- 1. MAIN MENU SCREEN -->
+    <section id="main-menu" class="w-full max-w-2xl bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur-md text-center flex flex-col items-center">
+      <div class="relative mb-6">
+        <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-slate-800 border-4 border-purple-500/50 flex items-center justify-center overflow-hidden shadow-inner">
+          <!-- Mini Avatar Preview -->
+          <svg viewBox="0 0 500 500" class="w-full h-full transform translate-y-3">
+            <ellipse cx="250" cy="230" rx="65" ry="80" fill="#b87950" />
+            <path d="M 180 180 Q 250 120 320 180 Q 340 250 320 280 Q 250 200 180 280 Z" fill="#221510" />
+            <rect x="200" y="210" width="40" height="25" rx="5" fill="none" stroke="#0f172a" stroke-width="5" />
+            <rect x="260" y="210" width="40" height="25" rx="5" fill="none" stroke="#0f172a" stroke-width="5" />
+            <line x1="240" y1="222" x2="260" y2="222" stroke="#0f172a" stroke-width="4" />
+            <path d="M 220 275 Q 250 295 280 275" fill="none" stroke="#5c2e19" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span class="absolute -bottom-2 right-0 bg-purple-600 text-xs text-white font-bold px-2.5 py-0.5 rounded-full border border-purple-400">Teacher Mamo</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl font-bold font-title mb-3 text-white tracking-wide">
+        Ready to Challenge Your Mind?
+      </h2>
+      <p class="text-slate-400 mb-8 text-sm sm:text-base max-w-md">
+        Solve math equations before the 10-second timer runs out. Earn points from Mamo and level up!
+      </p>
+
+      <div class="w-full max-w-xs mb-5 text-left">
+        <label for="player-username" class="block text-sm font-bold text-pink-200 mb-2">YOUR PLAYER NAME</label>
+        <input id="player-username" maxlength="20" autocomplete="nickname" placeholder="Enter your username" class="w-full rounded-xl border-2 border-pink-500 bg-black text-white placeholder-pink-200/70 px-4 py-3 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-pink-300" />
+        <p class="text-xs text-pink-100 mt-2">Your name and scores are saved on this device.</p>
+      </div>
+
+      <div class="w-full max-w-xs space-y-3">
+        <button onclick="startGame()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-lg shadow-lg hover:shadow-purple-500/25 transition transform active:scale-95 flex items-center justify-center gap-3">
+          <i class="fa-solid fa-play"></i> START GAME
+        </button>
+        <button onclick="showScreen('leaderboard-screen')" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition border border-slate-700 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-trophy text-amber-400"></i> LEADERBOARD
+        </button>
+        <button onclick="showScreen('stats-screen')" class="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition border border-slate-700 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-chart-simple text-emerald-400"></i> MY STATS
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. GAME PLAY SCREEN -->
+    <section id="game-screen" class="hidden w-full flex-col gap-6">
+      
+      <!-- GAME TOP BAR: LIVES, LEVEL, ROUND, SCORE -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-center space-x-1" id="lives-container">
+          <!-- Hearts rendered dynamically -->
+        </div>
+
+        <div class="flex items-center space-x-6 font-title">
+          <div class="text-center">
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Level</span>
+            <span id="current-level" class="text-xl font-bold text-blue-400">1</span>
+          </div>
+          <div class="text-center">
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Round</span>
+            <span id="current-round" class="text-xl font-bold text-purple-400">1 / 5</span>
+          </div>
+          <div class="text-center">
+            <span class="text-xs text-slate-400 uppercase tracking-wider block">Score</span>
+            <span id="current-score" class="text-xl font-bold text-amber-400">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMER COUNTDOWN BAR -->
+      <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
+        <div id="timer-bar" class="h-full bg-emerald-500 w-full rounded-full"></div>
+      </div>
+
+      <!-- FEEDBACK BANNER (WRONG/CORRECT ANSWER NOTIFICATION) -->
+      <div id="feedback-banner" class="hidden rounded-xl p-3 text-center font-bold text-sm sm:text-base border transition-all duration-300"></div>
+
+      <!-- MAIN GAME GRID: MATH PROBLEM & KEYPAD (LEFT) + TEACHER & CHALKBOARD (RIGHT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- LEFT PANEL: QUESTION + INPUT KEYPAD -->
+        <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+          
+          <!-- Question Box -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-center shadow-inner mb-4">
+            <span class="text-xs text-slate-500 uppercase tracking-widest font-title block mb-1">Solve Equation</span>
+            <div id="equation-display" class="text-4xl sm:text-5xl font-bold font-title text-white tracking-wider">
+              -- + -- = ?
+            </div>
+            <!-- User Input Display -->
+            <div class="mt-4 flex items-center justify-center">
+              <div id="user-input-box" class="min-w-[140px] h-14 bg-slate-900 border-2 border-purple-500/60 rounded-lg text-3xl font-bold text-yellow-300 flex items-center justify-center px-4 tracking-widest">
+                <span id="user-input-text"></span><span class="animate-pulse text-purple-400">|</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Numeric Keypad Grid -->
+          <div class="grid grid-cols-3 gap-2.5 max-w-sm mx-auto w-full">
+            <button onclick="appendNum('7')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">7</button>
+            <button onclick="appendNum('8')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">8</button>
+            <button onclick="appendNum('9')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">9</button>
+            
+            <button onclick="appendNum('4')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">4</button>
+            <button onclick="appendNum('5')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">5</button>
+            <button onclick="appendNum('6')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">6</button>
+            
+            <button onclick="appendNum('1')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">1</button>
+            <button onclick="appendNum('2')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">2</button>
+            <button onclick="appendNum('3')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">3</button>
+            
+            <button onclick="clearInput()" class="num-btn py-3.5 rounded-xl font-bold text-lg text-rose-400 hover:text-rose-300 uppercase">Clear</button>
+            <button onclick="appendNum('0')" class="num-btn py-3.5 rounded-xl font-bold text-2xl text-slate-100 hover:text-white">0</button>
+            <button onclick="submitAnswer()" class="num-btn py-3.5 rounded-xl font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg uppercase">Enter</button>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: TEACHER SVG & CHALKBOARD BOARD -->
+        <div class="lg:col-span-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl min-h-[420px]">
+          
+          <!-- Chalkboard Title & Points Board -->
+          <div class="chalkboard-container rounded-xl p-4 flex-grow flex flex-col mb-4">
+            <div class="text-center border-b border-emerald-900/60 pb-2 mb-3">
+              <h3 class="font-title font-bold text-indigo-700 text-xl tracking-wide">MAMO’S TALLY BOARD</h3>
+              <p class="text-xs text-slate-500">One tally for every correct answer</p>
+            </div>
+            
+            <!-- Chalkboard Stars Grid -->
+            <div id="chalkboard-stars" class="flex-grow flex flex-wrap content-start gap-3 p-3 items-start" aria-label="Correct answer tally marks"></div>
+          </div>
+
+          <!-- Teacher Mamo SVG Avatar -->
+          <div class="teacher-stage w-full flex justify-center items-end h-48 sm:h-56 relative overflow-hidden rounded-xl border">
+            <svg id="mamo-avatar" viewBox="0 0 500 400" class="h-full w-auto">
+              <defs>
+                <!-- Skin Color Palette: #b87950 across all parts -->
+                <!-- Hair Color: #1e1b18 with #322d28 highlights -->
+                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#b87950" />
+                  <stop offset="100%" stop-color="#9b623d" />
+                </linearGradient>
+                <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2a2421" />
+                  <stop offset="100%" stop-color="#120e0c" />
+                </linearGradient>
+              </defs>
+
+              <!-- Back Hair / Ponytail Volume -->
+              <g id="hair-back">
+                <path d="M 180 160 C 150 100, 130 220, 160 300 C 180 320, 200 250, 210 180 Z" fill="url(#hairGrad)" />
+                <path d="M 320 160 C 350 100, 370 220, 340 300 C 320 320, 300 250, 290 180 Z" fill="url(#hairGrad)" />
+                <path d="M 190 145 C 165 175 176 260 205 292 Q 220 270 215 205 Z" fill="url(#hairGrad)" /><path d="M 310 145 C 335 175 324 260 295 292 Q 280 270 285 205 Z" fill="url(#hairGrad)" />
+              </g>
+
+              <!-- Legs (Athletic Shorts) -->
+              <rect x="210" y="320" width="30" height="80" rx="10" fill="url(#skinGrad)" />
+              <rect x="260" y="320" width="30" height="80" rx="10" fill="url(#skinGrad)" />
+              <path d="M 195 300 L 305 300 L 295 330 L 205 330 Z" fill="#ec4899" /> <!-- Bright pink shorts -->
+
+              <!-- Torso / High-neck Athletic Shirt -->
+              <path d="M 190 220 L 310 220 L 295 305 L 205 305 Z" fill="#8b5cf6" />
+              <!-- Grey Shoulder Stripes -->
+              <line x1="195" y1="220" x2="210" y2="300" stroke="#f9a8d4" stroke-width="6" />
+              <line x1="305" y1="220" x2="290" y2="300" stroke="#f9a8d4" stroke-width="6" />
+              <!-- High-neck collar -->
+              <rect x="225" y="200" width="50" height="25" rx="5" fill="#7c3aed" stroke="#c4b5fd" stroke-width="2" />
+
+              <!-- Neck (Skin tone) -->
+              <rect x="232" y="180" width="36" height="30" rx="4" fill="url(#skinGrad)" />
+
+              <!-- Head/Face (Skin tone: #b87950) -->
+              <ellipse cx="250" cy="155" rx="55" ry="65" fill="url(#skinGrad)" />
+
+              <!-- Facial Features -->
+              <!-- Eyes & Eyebrows -->
+              <g id="eyes">
+                <ellipse cx="225" cy="150" rx="7" ry="8" fill="#ffffff" />
+                <circle cx="225" cy="150" r="4" fill="#1e293b" />
+                <ellipse cx="275" cy="150" rx="7" ry="8" fill="#ffffff" />
+                <circle cx="275" cy="150" r="4" fill="#1e293b" />
+                <!-- Eyebrows -->
+                <path id="eyebrow-left" d="M 215 138 Q 225 134 235 138" fill="none" stroke="#120e0c" stroke-width="3" stroke-linecap="round" />
+                <path id="eyebrow-right" d="M 265 138 Q 275 134 285 138" fill="none" stroke="#120e0c" stroke-width="3" stroke-linecap="round" />
+              </g>
+
+              <!-- Dark Glasses framing face -->
+              <g id="glasses">
+                <rect x="210" y="138" width="32" height="22" rx="4" fill="none" stroke="#020617" stroke-width="4" />
+                <rect x="258" y="138" width="32" height="22" rx="4" fill="none" stroke="#020617" stroke-width="4" />
+                <line x1="242" y1="148" x2="258" y2="148" stroke="#020617" stroke-width="3" />
+                <line x1="195" y1="145" x2="210" y2="145" stroke="#020617" stroke-width="3" />
+                <line x1="290" y1="145" x2="305" y2="145" stroke="#020617" stroke-width="3" />
+              </g>
+
+              <!-- Mouth (Dynamic path for expressions) -->
+              <path id="teacher-mouth" d="M 235 185 Q 250 195 265 185" fill="none" stroke="#4a1d0d" stroke-width="4" stroke-linecap="round" />
+
+              <!-- Detailed Front Hair (Wavy / Curly Layers & Half-Up Style) -->
+              <g id="hair-front">
+                <path d="M 195 140 Q 200 85 250 85 Q 300 85 305 140 Q 290 105 250 100 Q 210 105 195 140 Z" fill="url(#hairGrad)" />
+                <!-- Side Wavy Curls -->
+                <path d="M 195 135 C 180 160, 185 190, 200 205 C 205 185, 200 160, 205 140 Z" fill="url(#hairGrad)" />
+                <path d="M 305 135 C 320 160, 315 190, 300 205 C 295 185, 300 160, 295 140 Z" fill="url(#hairGrad)" />
+                <!-- Top Ponytail Hairband -->
+                <path d="M 205 122 Q 220 78 250 88 Q 280 78 295 122 Q 270 105 250 108 Q 230 105 205 122 Z" fill="url(#hairGrad)" />
+              </g>
+
+              <!-- Left Arm (Eraser Hand) -->
+              <g id="arm-left-group" class="arm-left">
+                <path d="M 195 225 L 150 250 L 135 280" fill="none" stroke="url(#skinGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M 195 225 L 150 250 L 135 280" fill="none" stroke="#0f172a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="35 100" />
+                <!-- Felt Eraser in Hand -->
+                <rect x="120" y="270" width="25" height="15" rx="3" fill="#475569" stroke="#f8fafc" stroke-width="1.5" />
+              </g>
+
+              <!-- Right Arm (Chalk Marker Hand) -->
+              <g id="arm-right-group" class="arm-right">
+                <path d="M 305 225 L 350 250 L 365 280" fill="none" stroke="url(#skinGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M 305 225 L 350 250 L 365 280" fill="none" stroke="#0f172a" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="35 100" />
+                <!-- Yellow Chalk Marker -->
+                <rect x="360" y="275" width="10" height="22" rx="2" fill="#facc15" transform="rotate(-30 360 275)" />
+              </g>
+            </svg>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 3. LEADERBOARD SCREEN -->
+    <section id="leaderboard-screen" class="hidden w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+        <div class="flex items-center space-x-3">
+          <div class="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <i class="fa-solid fa-trophy text-2xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-title text-white">LEADERBOARD</h2>
+            <p class="text-xs text-slate-400">Top Math Champions</p>
+          </div>
+        </div>
+        <button onclick="showScreen('main-menu')" class="text-slate-400 hover:text-white text-sm font-semibold">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div id="leaderboard-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+        <button onclick="showScreen('main-menu')" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition">
+          Back to Menu
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. MY STATS SCREEN -->
+    <section id="stats-screen" class="hidden w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+        <div class="flex items-center space-x-3">
+          <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <i class="fa-solid fa-chart-pie text-2xl"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold font-title text-white">MY STATS</h2>
+            <p class="text-xs text-slate-400">Your Math Performance History</p>
+          </div>
+        </div>
+        <button onclick="showScreen('main-menu')" class="text-slate-400 hover:text-white text-sm font-semibold">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-center">
+          <span class="text-xs text-slate-400 block mb-1">Questions Solved</span>
+          <span id="stat-total-solved" class="text-3xl font-bold font-title text-blue-400">0</span>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-center">
+          <span class="text-xs text-slate-400 block mb-1">Accuracy Rate</span>
+          <span id="stat-accuracy" class="text-3xl font-bold font-title text-emerald-400">0%</span>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-center">
+          <span class="text-xs text-slate-400 block mb-1">Highest Level</span>
+          <span id="stat-highest-level" class="text-3xl font-bold font-title text-purple-400">1</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+        <h4 class="text-sm font-semibold text-slate-300 mb-3">Overall Performance Summary</h4>
+        <div class="space-y-2 text-sm text-slate-400">
+          <div class="flex justify-between">
+            <span>Correct Answers:</span>
+            <span id="stat-correct-count" class="text-emerald-400 font-bold">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Mistakes / Timeouts:</span>
+            <span id="stat-wrong-count" class="text-rose-400 font-bold">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Score Accumulated:</span>
+            <span id="stat-total-score" class="text-amber-400 font-bold">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+        <button onclick="showScreen('main-menu')" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition">
+          Back to Menu
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-3 text-center text-xs text-slate-500">
+    Mamo's Math World &copy; 2026 - Interactive Math Learning Environment
+  </footer>
+
+  <!-- DUAL AUDIO ENGINE (Menu Track vs Game Track) -->
+  <audio id="audio-menu" loop preload="auto">
+    <source src="hello.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="audio-game" loop preload="auto">
+    <source src="oopsie.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- JAVASCRIPT GAME LOGIC -->
+  <script>
+    /* ==========================================================================
+       GAME STATE MANAGEMENT
+       ========================================================================== */
+    const GAME_CONFIG = {
+      QUESTION_TIME_LIMIT: 10, // 10 Seconds per question
+      MAX_LIVES: 5,
+      ROUNDS_PER_LEVEL: 5
+    };
+
+    let gameState = {
+      currentScreen: 'main-menu',
+      lives: GAME_CONFIG.MAX_LIVES,
+      level: 1,
+      round: 1,
+      score: 0,
+      userInput: '',
+      currentEquation: null,
+      timerInterval: null,
+      timeLeft: GAME_CONFIG.QUESTION_TIME_LIMIT,
+      boardTallies: 0,
+      resetExpressionTimeout: null,
+      acceptingInput: false
+    };
+
+    // User Persistent Stats (localStorage backed)
+    let userStats = {
+      totalSolved: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0,
+      highestLevel: 1,
+      totalScore: 0
+    };
+
+    // Only real locally recorded player sessions appear here; no demo names.
+    let leaderboard = [];
+    let playerName = localStorage.getItem('mamo_player_name') || '';
+
+
+
+    /* ==========================================================================
+       AUDIO CONTROLLER
+       ========================================================================== */
+    const audioMenu = document.getElementById('audio-menu');
+    const audioGame = document.getElementById('audio-game');
+
+    function playAudioTrack(screen) {
+      const track = screen === 'game-screen' ? audioGame : audioMenu;
+      const other = screen === 'game-screen' ? audioMenu : audioGame;
+      other.pause(); other.currentTime = 0;
+      if (track.paused) track.play().catch(() => {});
+    }
+
+    // Start the welcome loop on load where autoplay is allowed. If blocked,
+    // the first user interaction starts the correct track for the active screen.
+    function unlockAudioForCurrentScreen() {
+      playAudioTrack(gameState.currentScreen);
+      document.removeEventListener('pointerdown', unlockAudioForCurrentScreen);
+      document.removeEventListener('keydown', unlockAudioForCurrentScreen);
+    }
+    document.addEventListener('pointerdown', unlockAudioForCurrentScreen);
+    document.addEventListener('keydown', unlockAudioForCurrentScreen);
+
+    /* ==========================================================================
+       SCREEN NAVIGATION
+       ========================================================================== */
+    function showScreen(screenId) {
+      gameState.currentScreen = screenId;
+
+      // Hide all screens
+      ['main-menu', 'game-screen', 'leaderboard-screen', 'stats-screen'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      // Show targeted screen
+      const activeScreen = document.getElementById(screenId);
+      if (activeScreen) {
+        if (screenId === 'game-screen') {
+          activeScreen.classList.remove('hidden');
+          activeScreen.classList.add('flex');
+        } else {
+          activeScreen.classList.remove('hidden');
+        }
+      }
+
+      // Handle Audio Switch
+      playAudioTrack(screenId);
+
+      // Render stats/leaderboard if selected
+      if (screenId === 'leaderboard-screen') renderLeaderboard();
+      if (screenId === 'stats-screen') renderStats();
+
+      // Stop game loop if navigating away
+      if (screenId !== 'game-screen') {
+        clearInterval(gameState.timerInterval);
+      }
+    }
+
+    /* ==========================================================================
+       GAME LIFECYCLE & ENGINE
+       ========================================================================== */
+    function startGame() {
+      // Load saved stats
+      loadSavedStats();
+
+      // Reset state for new session
+      gameState.lives = GAME_CONFIG.MAX_LIVES;
+      gameState.level = 1;
+      gameState.round = 1;
+      gameState.score = 0;
+      gameState.boardTallies = 0;
+      gameState.acceptingInput = true;
+
+      renderLives();
+      renderChalkboardStars();
+      updateScoreboard();
+      showScreen('game-screen');
+      
+      // Start First Question
+      nextQuestion();
+    }
+
+    function generateEquation(level) {
+      let num1, num2, operator, answer;
+      const ops = ['+', '-', '*'];
+      
+      if (level === 1) {
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        operator = '+';
+      } else if (level === 2) {
+        num1 = Math.floor(Math.random() * 20) + 5;
+        num2 = Math.floor(Math.random() * 15) + 1;
+        operator = Math.random() > 0.4 ? '+' : '-';
+        if (operator === '-' && num1 < num2) [num1, num2] = [num2, num1]; // Keep positive
+      } else if (level === 3) {
+        num1 = Math.floor(Math.random() * 12) + 2;
+        num2 = Math.floor(Math.random() * 10) + 2;
+        operator = ops[Math.floor(Math.random() * ops.length)];
+        if (operator === '-' && num1 < num2) [num1, num2] = [num2, num1];
+      } else {
+        // Higher levels
+        num1 = Math.floor(Math.random() * (10 * level)) + 5;
+        num2 = Math.floor(Math.random() * (8 * level)) + 2;
+        operator = ops[Math.floor(Math.random() * ops.length)];
+        if (operator === '-' && num1 < num2) [num1, num2] = [num2, num1];
+      }
+
+      switch (operator) {
+        case '+': answer = num1 + num2; break;
+        case '-': answer = num1 - num2; break;
+        case '*': answer = num1 * num2; break;
+      }
+
+      return { num1, num2, operator, answer };
+    }
+
+    function nextQuestion() {
+      gameState.userInput = '';
+      updateUserInputDisplay();
+      gameState.acceptingInput = true;
+      hideFeedback();
+
+      // Generate question
+      gameState.currentEquation = generateEquation(gameState.level);
+      
+      // Display Equation
+      const eqDisplay = document.getElementById('equation-display');
+      eqDisplay.textContent = `${gameState.currentEquation.num1} ${gameState.currentEquation.operator} ${gameState.currentEquation.num2} = ?`;
+
+      // Start Countdown Timer
+      startTimer();
+    }
+
+    /* ==========================================================================
+       TIMER SYSTEM
+       ========================================================================== */
+    function startTimer() {
+      clearInterval(gameState.timerInterval);
+      gameState.timeLeft = GAME_CONFIG.QUESTION_TIME_LIMIT;
+      updateTimerBar();
+
+      const startTime = Date.now();
+      const duration = GAME_CONFIG.QUESTION_TIME_LIMIT * 1000;
+
+      gameState.timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        gameState.timeLeft = Math.max(0, (duration - elapsed) / 1000);
+        updateTimerBar();
+
+        if (gameState.timeLeft <= 0) {
+          clearInterval(gameState.timerInterval);
+          handleTimeout();
+        }
+      }, 50);
+    }
+
+    function updateTimerBar() {
+      const bar = document.getElementById('timer-bar');
+      const percentage = (gameState.timeLeft / GAME_CONFIG.QUESTION_TIME_LIMIT) * 100;
+      bar.style.width = `${percentage}%`;
+
+      if (percentage > 50) {
+        bar.className = 'h-full bg-emerald-500 rounded-full transition-all';
+      } else if (percentage > 25) {
+        bar.className = 'h-full bg-amber-500 rounded-full transition-all';
+      } else {
+        bar.className = 'h-full bg-rose-500 rounded-full transition-all';
+      }
+    }
+
+    /* ==========================================================================
+       KEYPAD & INPUT HANDLING
+       ========================================================================== */
+    function appendNum(num) {
+      if (!gameState.acceptingInput) return;
+      if (gameState.userInput.length < 5) {
+        gameState.userInput += num;
+        updateUserInputDisplay();
+      }
+    }
+
+    function clearInput() {
+      if (!gameState.acceptingInput) return;
+      gameState.userInput = '';
+      updateUserInputDisplay();
+    }
+
+    function updateUserInputDisplay() {
+      const textSpan = document.getElementById('user-input-text');
+      textSpan.textContent = gameState.userInput;
+    }
+
+    // Physical Keyboard Listener
+    document.addEventListener('keydown', (e) => {
+      if (gameState.currentScreen !== 'game-screen' || !gameState.acceptingInput) return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        appendNum(e.key);
+      } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        clearInput();
+      } else if (e.key === 'Enter') {
+        submitAnswer();
+      }
+    });
+
+    /* ==========================================================================
+       ANSWER VALIDATION & FEEDBACK
+       ========================================================================== */
+    function submitAnswer() {
+      if (!gameState.acceptingInput || gameState.userInput === '') return;
+      
+      gameState.acceptingInput = false;
+      clearInterval(gameState.timerInterval);
+
+      const userNum = parseInt(gameState.userInput, 10);
+      const isCorrect = userNum === gameState.currentEquation.answer;
+
+      userStats.totalSolved++;
+
+      if (isCorrect) {
+        handleCorrectAnswer();
+      } else {
+        handleWrongAnswer(false);
+      }
+    }
+
+    function handleCorrectAnswer() {
+      userStats.correctAnswers++;
+      const pointsEarned = 100 + Math.round(gameState.timeLeft * 10);
+      gameState.score += pointsEarned;
+      userStats.totalScore += pointsEarned;
+
+      // Board Stars Increment
+      gameState.boardTallies++;
+
+      // Trigger Avatar Happy Expression & Arm Animation
+      setTeacherExpression('happy');
+
+      showFeedback(true, `Correct! +${pointsEarned} pts`);
+      renderChalkboardStars();
+      updateScoreboard();
+
+      // Progress Round/Level
+      setTimeout(() => {
+        advanceGameProgression();
+      }, 1500);
+    }
+
+    function handleWrongAnswer(isTimeout = false) {
+      userStats.wrongAnswers++;
+      gameState.lives--;
+      renderLives();
+
+      // Trigger Avatar Annoyed Expression & Eraser Arm Animation
+      setTeacherExpression('annoyed');
+
+      const correctAns = gameState.currentEquation.answer;
+      const msg = isTimeout 
+        ? `Time's Up! Correct answer was ${correctAns}.` 
+        : `Incorrect! Correct answer was ${correctAns}.`;
+
+      showFeedback(false, msg);
+
+      if (gameState.lives <= 0) {
+        setTimeout(() => {
+          endGame();
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          advanceGameProgression();
+        }, 2000);
+      }
+    }
+
+    function handleTimeout() {
+      if (!gameState.acceptingInput) return;
+      gameState.acceptingInput = false;
+      handleWrongAnswer(true);
+    }
+
+    function advanceGameProgression() {
+      if (gameState.lives <= 0) return;
+
+      if (gameState.round < GAME_CONFIG.ROUNDS_PER_LEVEL) {
+        gameState.round++;
+      } else {
+        gameState.round = 1;
+        gameState.level++;
+        if (gameState.level > userStats.highestLevel) {
+          userStats.highestLevel = gameState.level;
+        }
+      }
+
+      saveStats();
+      updateScoreboard();
+      nextQuestion();
+    }
+
+    /* ==========================================================================
+       AVATAR ANIMAION & EXPRESSION SYSTEM
+       ========================================================================== */
+    function setTeacherExpression(type) {
+      clearTimeout(gameState.resetExpressionTimeout);
+
+      const mouth = document.getElementById('teacher-mouth');
+      const armRight = document.getElementById('arm-right-group');
+      const armLeft = document.getElementById('arm-left-group');
+      const eyebrowLeft = document.getElementById('eyebrow-left');
+      const eyebrowRight = document.getElementById('eyebrow-right');
+
+      if (type === 'happy') {
+        // Smile mouth & Right arm marker write animation
+        mouth.setAttribute('d', 'M 230 175 Q 250 205 270 175 Z');
+        mouth.setAttribute('fill', '#facc15');
+        eyebrowLeft.setAttribute('d', 'M 215 132 Q 225 125 235 132');
+        eyebrowRight.setAttribute('d', 'M 265 132 Q 275 125 285 132');
+        
+        armRight.classList.add('arm-right-write');
+        armLeft.classList.remove('arm-left-erase');
+      } else if (type === 'annoyed') {
+        // Disappointed mouth & Left arm eraser animation
+        mouth.setAttribute('d', 'M 235 190 Q 250 175 265 190');
+        mouth.setAttribute('fill', 'none');
+        eyebrowLeft.setAttribute('d', 'M 215 138 Q 225 145 235 140');
+        eyebrowRight.setAttribute('d', 'M 265 140 Q 275 145 285 138');
+
+        armLeft.classList.add('arm-left-erase');
+        armRight.classList.remove('arm-right-write');
+      } else {
+        // Neutral
+        mouth.setAttribute('d', 'M 235 185 Q 250 195 265 185');
+        mouth.setAttribute('fill', 'none');
+        eyebrowLeft.setAttribute('d', 'M 215 138 Q 225 134 235 138');
+        eyebrowRight.setAttribute('d', 'M 265 138 Q 275 134 285 138');
+
+        armRight.classList.remove('arm-right-write');
+        armLeft.classList.remove('arm-left-erase');
+      }
+
+      // Automatically reset expression back to neutral after 5 seconds
+      gameState.resetExpressionTimeout = setTimeout(() => {
+        setTeacherExpression('neutral');
+      }, 5000);
+    }
+
+    /* ==========================================================================
+       UI RENDERERS & FEEDBACK BANNERS
+       ========================================================================== */
+    function renderLives() {
+      const container = document.getElementById('lives-container');
+      container.innerHTML = '';
+      for (let i = 0; i < GAME_CONFIG.MAX_LIVES; i++) {
+        const heart = document.createElement('i');
+        if (i < gameState.lives) {
+          heart.className = 'fa-solid fa-heart text-rose-500 text-lg sm:text-xl drop-shadow';
+        } else {
+          heart.className = 'fa-solid fa-heart text-slate-700 text-lg sm:text-xl';
+        }
+        container.appendChild(heart);
+      }
+    }
+
+    function renderChalkboardStars() {
+      const board = document.getElementById('chalkboard-stars');
+      board.innerHTML = '';
+      if (gameState.boardTallies === 0) {
+        board.innerHTML = '<p class="text-slate-400 text-sm italic w-full text-center py-6">Your tallies will appear here. Get one right to start!</p>';
+        return;
+      }
+      for (let i = 0; i < gameState.boardTallies; i += 5) {
+        const group = document.createElement('div');
+        group.className = 'tally-group';
+        const count = Math.min(5, gameState.boardTallies - i);
+        for (let j = 0; j < count; j++) {
+          const mark = document.createElement('span');
+          mark.className = 'tally-mark'; mark.textContent = '|'; group.appendChild(mark);
+        }
+        if (count === 5) { const slash = document.createElement('span'); slash.className = 'tally-slash'; group.appendChild(slash); }
+        board.appendChild(group);
+      }
+      const total = document.createElement('div'); total.className = 'w-full text-right text-indigo-700 font-bold text-sm mt-1';
+      total.textContent = `${gameState.boardTallies} correct ${gameState.boardTallies === 1 ? 'answer' : 'answers'}`; board.appendChild(total);
+    }
+
+    function updateScoreboard() {
+      document.getElementById('current-level').textContent = gameState.level;
+      document.getElementById('current-round').textContent = `${gameState.round} / ${GAME_CONFIG.ROUNDS_PER_LEVEL}`;
+      document.getElementById('current-score').textContent = gameState.score;
+    }
+
+    function showFeedback(isSuccess, message) {
+      const banner = document.getElementById('feedback-banner');
+      banner.classList.remove('hidden', 'bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-300', 'bg-rose-500/20', 'border-rose-500/50', 'text-rose-300');
+      
+      if (isSuccess) {
+        banner.classList.add('bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-300');
+        banner.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i>${message}`;
+      } else {
+        banner.classList.add('bg-rose-500/20', 'border-rose-500/50', 'text-rose-300');
+        banner.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i>${message}`;
+      }
+    }
+
+    function hideFeedback() {
+      const banner = document.getElementById('feedback-banner');
+      banner.classList.add('hidden');
+    }
+
+    function endGame() {
+      saveStats();
+      
+      // Record a completed run under the player's chosen username.
+      playerName = (document.getElementById('player-username')?.value || playerName || '').trim().slice(0, 20);
+      if (!playerName) playerName = 'Player';
+      try {
+        localStorage.setItem('mamo_player_name', playerName);
+        const savedBoard = JSON.parse(localStorage.getItem('mamo_math_leaderboard') || '[]');
+        savedBoard.push({ name: playerName, score: gameState.score, level: gameState.level, playedAt: Date.now() });
+        leaderboard = savedBoard.sort((a, b) => b.score - a.score).slice(0, 50);
+        localStorage.setItem('mamo_math_leaderboard', JSON.stringify(leaderboard));
+      } catch(e) { leaderboard.push({name:playerName, score:gameState.score, level:gameState.level}); }
+
+      alert(`GAME OVER!\nYour Final Score: ${gameState.score}\nLevel Reached: ${gameState.level}`);
+      showScreen('main-menu');
+    }
+
+    /* ==========================================================================
+       STATS & LEADERBOARD SYSTEM
+       ========================================================================== */
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-list');
+      container.innerHTML = '';
+      try { leaderboard = JSON.parse(localStorage.getItem('mamo_math_leaderboard') || '[]'); } catch(e) { leaderboard = []; }
+      if (!leaderboard.length) { container.innerHTML = '<p class="rounded-xl border border-pink-500/40 bg-black p-5 text-center text-white font-semibold">No players yet. Finish a game to appear on the leaderboard!</p>'; return; }
+
+      leaderboard.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-3 rounded-xl border ${
+          index === 0 
+            ? 'bg-amber-500/10 border-amber-500/30 text-amber-200' 
+            : 'bg-slate-950 border-slate-800 text-slate-300'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="w-6 h-6 flex items-center justify-center font-bold text-sm rounded-full ${
+              index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+            }">${index + 1}</span>
+            <span class="font-semibold">${item.name}</span>
+          </div>
+          <div class="flex items-center space-x-4 font-title text-sm">
+            <span class="text-slate-400">Lvl ${item.level}</span>
+            <span class="font-bold text-amber-400">${item.score} pts</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderStats() {
+      loadSavedStats();
+      document.getElementById('stat-total-solved').textContent = userStats.totalSolved;
+      
+      const accuracy = userStats.totalSolved > 0 
+        ? Math.round((userStats.correctAnswers / userStats.totalSolved) * 100) 
+        : 0;
+      
+      document.getElementById('stat-accuracy').textContent = `${accuracy}%`;
+      document.getElementById('stat-highest-level').textContent = userStats.highestLevel;
+      document.getElementById('stat-correct-count').textContent = userStats.correctAnswers;
+      document.getElementById('stat-wrong-count').textContent = userStats.wrongAnswers;
+      document.getElementById('stat-total-score').textContent = userStats.totalScore;
+    }
+
+    function saveStats() {
+      try {
+        localStorage.setItem('mamo_math_stats', JSON.stringify(userStats));
+      } catch(e) {
+        /* Storage quota fallback */
+      }
+    }
+
+    function loadSavedStats() {
+      try {
+        const saved = localStorage.getItem('mamo_math_stats');
+        if (saved) userStats = JSON.parse(saved);
+      } catch(e) {
+        /* Storage parse fallback */
+      }
+    }
+
+    // Initialize Default State on Load
+    window.onload = function() {
+      loadSavedStats();
+      const nameInput = document.getElementById('player-username');
+      if (nameInput) { nameInput.value = playerName; nameInput.addEventListener('change', () => { playerName = nameInput.value.trim().slice(0,20); try { localStorage.setItem('mamo_player_name', playerName); } catch(e) {} }); }
+      renderLives();
+      audioMenu.volume = 0.55; audioGame.volume = 0.55;
+      audioMenu.play().catch(() => {});
+    };
+  </script>
+</body>
+</html>
